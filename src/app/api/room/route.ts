@@ -84,6 +84,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  try {
+    return await handlePUT(req);
+  } catch (err) {
+    console.error("[PUT /api/room] Unhandled error:", err);
+    return jsonError("Internal server error", 500);
+  }
+}
+
+async function handlePUT(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
     body = await req.json() as Record<string, unknown>;
@@ -130,11 +139,16 @@ export async function PUT(req: NextRequest) {
       }
 
       const color = String(body.color ?? "#22c55e").replace(/[^#a-fA-F0-9]/g, "").slice(0, 7);
+      const existingParticipant = room.participants[participantId];
       const isFirstParticipant = Object.keys(room.participants).length === 0;
 
-      // Re-assign host if needed (earliest joinedAt)
-      let isHost = isFirstParticipant;
-      if (!isFirstParticipant) {
+      // Preserve host status if rejoining; otherwise assign if no host exists
+      let isHost: boolean;
+      if (existingParticipant) {
+        isHost = existingParticipant.isHost;
+      } else if (isFirstParticipant) {
+        isHost = true;
+      } else {
         const existingHost = Object.values(room.participants).find((p) => p.isHost);
         isHost = !existingHost;
       }
