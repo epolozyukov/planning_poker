@@ -1,0 +1,16 @@
+export const POLL_INTERVAL_MS = 1500;
+export const HEARTBEAT_INTERVAL_MS = 3000;
+export const HOST_TIMEOUT_MS = 8000;
+export const MAX_NICKNAME_LENGTH = 20;
+export const MIN_NICKNAME_LENGTH = 1;
+export const ROOM_CODE_LENGTH = 6;
+export const MAX_PARTICIPANTS = 30;
+export const QUOTE_RATE_LIMIT = 100;
+export const ROOM_CREATION_RATE_LIMIT = 100;
+export const VOTE_RATE_LIMIT = 100;
+export const CUSTOM_CARD_MIN = 0;
+export const CUSTOM_CARD_MAX = 999;
+export const QUOTE_TIMEOUT_MS = 3000;
+export const QUOTE_AUTO_DISMISS_MS = 8000;
+export const WRITE_RETRY_MAX = 3;
+export const ROOM_TTL_SECONDS = 60 * 60 * 24; // 24 hours
