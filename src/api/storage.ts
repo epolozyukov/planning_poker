@@ -1,7 +1,8 @@
 import { RoomState } from "@/shared/types";
 import { ROOM_TTL_SECONDS } from "@/shared/config";
 
-// In-memory fallback for local development without KV credentials
+// ─── In-memory fallback (local dev without any Redis) ────────────────────────
+
 const memoryStore: Map<string, { value: string; expiresAt: number }> = new Map();
 
 function memGet(key: string): string | null {
@@ -28,38 +29,74 @@ function memIncr(key: string): number {
   return next;
 }
 
-async function useKV(): Promise<boolean> {
-  return !!(
-    process.env.KV_REST_API_URL &&
-    process.env.KV_REST_API_TOKEN
-  );
+// ─── ioredis client (when REDIS_URL is set) ──────────────────────────────────
+
+// Reuse connection across warm serverless invocations
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _ioredis: any = null;
+
+async function getIORedis() {
+  if (!process.env.REDIS_URL) return null;
+  if (!_ioredis) {
+    const { default: IORedis } = await import("ioredis");
+    _ioredis = new IORedis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: false,
+      lazyConnect: true,
+    });
+  }
+  return _ioredis;
 }
 
+// ─── Vercel KV REST client (when KV_REST_API_URL is set) ─────────────────────
+
+function useVercelKV(): boolean {
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+// ─── Unified storage interface ────────────────────────────────────────────────
+
 async function kvGet(key: string): Promise<string | null> {
-  if (await useKV()) {
+  if (useVercelKV()) {
     const { kv } = await import("@vercel/kv");
     const val = await kv.get<string>(key);
+    return val ?? null;
+  }
+  const redis = await getIORedis();
+  if (redis) {
+    const val = await redis.get(key);
     return val ?? null;
   }
   return memGet(key);
 }
 
 async function kvSet(key: string, value: string, ttl: number): Promise<void> {
-  if (await useKV()) {
+  if (useVercelKV()) {
     const { kv } = await import("@vercel/kv");
     await kv.set(key, value, { ex: ttl });
+    return;
+  }
+  const redis = await getIORedis();
+  if (redis) {
+    await redis.set(key, value, "EX", ttl);
     return;
   }
   memSet(key, value, ttl);
 }
 
 async function kvIncr(key: string): Promise<number> {
-  if (await useKV()) {
+  if (useVercelKV()) {
     const { kv } = await import("@vercel/kv");
     return kv.incr(key);
   }
+  const redis = await getIORedis();
+  if (redis) {
+    return redis.incr(key);
+  }
   return memIncr(key);
 }
+
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function getRoom(roomId: string): Promise<RoomState | null> {
   const raw = await kvGet(`room:${roomId}`);
@@ -83,7 +120,6 @@ export async function getRateLimitCount(key: string): Promise<number> {
 
 export async function incrementRateLimit(key: string): Promise<number> {
   const count = await kvIncr(`ratelimit:${key}`);
-  // Ensure TTL is set (first call)
   if (count === 1) {
     await kvSet(`ratelimit:${key}`, "1", 3600);
   }
