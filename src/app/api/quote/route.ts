@@ -82,7 +82,7 @@ async function fetchFromGrok(context: QuoteContext): Promise<string | null> {
           { role: "user", content: buildUserPrompt(context) },
         ],
         max_tokens: 80,
-        temperature: 1.1,
+        temperature: 0.9,
       }),
       signal: controller.signal,
     });
@@ -127,13 +127,17 @@ async function fetchFromGroq(context: QuoteContext): Promise<string | null> {
             { role: "user", content: buildUserPrompt(context) },
           ],
           max_tokens: 80,
-          temperature: 1.1,
+          temperature: 0.9,
         }),
         signal: controller.signal,
       }
     );
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      const err = await response.text().catch(() => response.status.toString());
+      console.error(`[quote] Groq error ${response.status}:`, err);
+      return null;
+    }
 
     const data = await response.json() as {
       choices?: Array<{ message?: { content?: string } }>;
@@ -141,7 +145,8 @@ async function fetchFromGroq(context: QuoteContext): Promise<string | null> {
 
     const content = data.choices?.[0]?.message?.content?.trim();
     return content ?? null;
-  } catch {
+  } catch (e) {
+    console.error("[quote] Groq fetch failed:", e);
     return null;
   } finally {
     clearTimeout(timeout);
