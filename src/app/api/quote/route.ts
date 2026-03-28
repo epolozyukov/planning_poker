@@ -24,15 +24,30 @@ function getFallbackQuote(): string {
   return quote!;
 }
 
-const GROK_SYSTEM_PROMPT = `You are a sharp, creative observer embedded in a software team's planning session. After each planning-poker reveal you deliver one memorable, funny line about what just happened.
+const GROK_SYSTEM_PROMPT = `You are a sharp, creative observer at a software team's planning poker session. After each vote reveal you deliver exactly one short, funny line.
 RULES:
-- One sentence only. Maximum 25 words.
-- Be creative: vary your style each time — use metaphors, absurdist comparisons, mock-formal language, fake historical references, or dramatic understatement.
-- Humour must be professional and IT-specific. No politics, religion, or personal criticism.
-- Draw from: code reviews, technical debt, tests, wrong estimates, deploys, coffee, deadlines, bugs, legacy code, documentation, on-call, scope creep, rubber-duck debugging, story points, PRs, microservices, git blame, stack overflow, prod incidents.
-- Never use exclamation marks. Never use startup clichés like "synergy", "move fast", "10x".
-- Do NOT repeat common phrases like "estimation complete" or "the estimate is probably wrong".
-- Output the quote only. No preamble, no attribution, no markdown.`;
+- One sentence. Maximum 25 words.
+- IT-specific humour only. No politics, religion, or personal criticism.
+- Never use exclamation marks. No startup clichés.
+- Output the quote only — no preamble, no attribution, no markdown.`;
+
+const STYLE_VARIANTS = [
+  "Write it as a fake ancient proverb about software.",
+  "Write it as a nature documentary voiceover about developers.",
+  "Write it as a deadpan fortune cookie.",
+  "Write it as a fake git commit message.",
+  "Write it as a line from a made-up postmortem report.",
+  "Write it as a passive-aggressive Slack message.",
+  "Write it as a fake Wikipedia citation.",
+  "Write it as a haiku (5-7-5 syllables, IT theme).",
+  "Write it as a legal disclaimer for the estimate.",
+  "Write it in the style of a bored sysadmin's log entry.",
+  "Write it as a fake error message from a legacy system.",
+  "Write it as a line from a team retrospective no one asked for.",
+  "Write it as a fake Agile certification tip.",
+  "Write it as something a rubber duck would say if it could talk.",
+  "Write it as a mock motivational poster caption.",
+];
 
 interface QuoteContext {
   voteCount: number;
@@ -44,18 +59,27 @@ interface QuoteContext {
 
 function buildUserPrompt(context: QuoteContext): string {
   const parts = [];
-  parts.push(`The team just revealed their planning poker votes.`);
-  parts.push(`${context.voteCount} people voted.`);
+
+  parts.push(`Planning poker votes just revealed.`);
+
+  if (context.votes.length > 0) {
+    parts.push(`Votes: ${context.votes.join(", ")}.`);
+  } else {
+    parts.push(`${context.voteCount} people voted.`);
+  }
 
   if (context.hasInfinity) parts.push("Someone voted infinity.");
   if (context.hasCoffee) parts.push("Someone voted coffee break.");
+
   if (context.spread !== null) {
-    if (context.spread === 0) parts.push("Perfect consensus — everyone agreed.");
-    else if (context.spread > 8) parts.push(`High variance: spread of ${context.spread} points.`);
+    if (context.spread === 0) parts.push("Everyone agreed — perfect consensus.");
+    else if (context.spread > 8) parts.push(`Massive spread of ${context.spread} points — the team is not aligned.`);
     else parts.push(`Spread of ${context.spread} points.`);
   }
 
-  parts.push("Give one dry, witty observation.");
+  const style = STYLE_VARIANTS[Math.floor(Math.random() * STYLE_VARIANTS.length)];
+  parts.push(style);
+
   return parts.join(" ");
 }
 
