@@ -76,25 +76,31 @@ export function RevealPanel({
   return (
     <div className="flex items-center gap-3 flex-wrap">
       {!isRevealed ? (
-        <Button
-          onClick={handleReveal}
-          disabled={!canReveal}
-          loading={loading}
-          size="lg"
-          className="flex-1 min-w-[160px]"
-          title={!canReveal ? "Need at least 1 vote to reveal" : undefined}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-          {labels.revealCards}
-          {voteCount > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 bg-amber-700/50 rounded text-xs">
-              {voteCount}/{Object.keys(room.participants).length}
-            </span>
+        <div className="flex-1 min-w-[160px] space-y-1">
+          <Button
+            onClick={handleReveal}
+            disabled={!canReveal}
+            loading={loading}
+            size="lg"
+            className="w-full"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            {labels.revealCards}
+            {voteCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 bg-amber-700/50 rounded text-xs">
+                {voteCount}/{Object.keys(room.participants).length}
+              </span>
+            )}
+          </Button>
+          {!canReveal && (
+            <p className="text-center text-xs text-green-500" role="status">
+              Waiting for at least one vote
+            </p>
           )}
-        </Button>
+        </div>
       ) : (
         <Button
           onClick={handleNewRound}

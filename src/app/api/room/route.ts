@@ -129,10 +129,6 @@ async function handlePUT(req: NextRequest) {
 
   switch (action) {
     case "join": {
-      if (Object.keys(room.participants).length >= MAX_PARTICIPANTS) {
-        return jsonError("Room is full", 400);
-      }
-
       const rawNickname = String(body.nickname ?? "");
       const nickname = sanitizeNickname(rawNickname);
       if (nickname.length < MIN_NICKNAME_LENGTH || nickname.length > MAX_NICKNAME_LENGTH) {
@@ -141,6 +137,11 @@ async function handlePUT(req: NextRequest) {
 
       const color = String(body.color ?? "#22c55e").replace(/[^#a-fA-F0-9]/g, "").slice(0, 7);
       const existingParticipant = room.participants[participantId];
+
+      // Allow rejoins even when room is full; only block genuinely new participants
+      if (!existingParticipant && Object.keys(room.participants).length >= MAX_PARTICIPANTS) {
+        return jsonError("Room is full", 400);
+      }
       const isFirstParticipant = Object.keys(room.participants).length === 0;
 
       // Preserve host status if rejoining; otherwise assign if no host exists
@@ -222,6 +223,9 @@ async function handlePUT(req: NextRequest) {
       }
       if (!room.participants[participantId].isHost) {
         return jsonError("Only the host can start a new round", 403);
+      }
+      if (room.phase === "voting") {
+        return jsonError("Round already in progress", 400);
       }
 
       room.phase = "voting";

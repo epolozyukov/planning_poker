@@ -116,11 +116,9 @@ export default function RoomPage() {
     }
   }, [room?.phase, room?.round, room?.settings.quotesEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync story label from room
+  // Sync story label from room (including clearing it when a new round starts)
   useEffect(() => {
-    if (room?.storyLabel !== undefined) {
-      setStoryLabel(room.storyLabel ?? "");
-    }
+    setStoryLabel(room?.storyLabel ?? "");
   }, [room?.storyLabel]);
 
   const handleAutoJoin = async (id: StoredIdentity) => {
@@ -132,11 +130,19 @@ export default function RoomPage() {
         color: id.color,
       });
       setRoom(updatedRoom);
+      setStoryLabel(updatedRoom.storyLabel ?? "");
       setHasJoined(true);
       setShowNicknamePrompt(false);
-    } catch {
-      setIdentity(null);
-      setShowNicknamePrompt(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg.includes("not found")) {
+        showToast("This room has expired. Please create a new one.", "error");
+        router.push("/");
+      } else {
+        showToast("Could not rejoin — please enter your name again.", "error");
+        setIdentity(null);
+        setShowNicknamePrompt(true);
+      }
     }
   };
 
@@ -165,6 +171,7 @@ export default function RoomPage() {
       const newIdentity: StoredIdentity = { participantId, nickname: cleaned, color };
       setIdentity(newIdentity);
       setRoom(updatedRoom);
+      setStoryLabel(updatedRoom.storyLabel ?? "");
       setHasJoined(true);
       setShowNicknamePrompt(false);
     } catch (err) {
@@ -213,6 +220,8 @@ export default function RoomPage() {
     const url = `${window.location.origin}/room/${roomId}`;
     navigator.clipboard.writeText(url).then(() => {
       showToast("Room link copied!", "success");
+    }).catch(() => {
+      showToast("Copy failed — please copy the URL manually", "error");
     });
   };
 
@@ -323,7 +332,7 @@ export default function RoomPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-30 bg-green-950/90 backdrop-blur-sm border-b border-green-800/60">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 overflow-x-auto min-w-0">
           {/* Logo */}
           <div className="flex items-center gap-2 mr-2">
             <span className="text-xl" aria-hidden="true">{isSwMode ? "⚡" : "♠"}</span>

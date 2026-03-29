@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "statusMessage": "Running user-perspective QA checks...",
+            "timeout": 180,
+            "prompt": "You are a QA engineer testing the Planning Poker app at '/Users/Yevhen_Poloziukov/Documents/Planning poker/planning_poker'.\n\nRun these checks IN ORDER and collect results:\n\n1. **Unit tests** — run: cd '/Users/Yevhen_Poloziukov/Documents/Planning poker/planning_poker' && npm test -- --run 2>&1\n   Record: PASS or FAIL, any failing test names and error messages.\n\n2. **TypeScript build** — run: cd '/Users/Yevhen_Poloziukov/Documents/Planning poker/planning_poker' && npm run build 2>&1\n   Record: PASS or FAIL, any type errors.\n\n3. **Changed files since last commit** — run: cd '/Users/Yevhen_Poloziukov/Documents/Planning poker/planning_poker' && git diff --name-only HEAD 2>/dev/null || echo 'no git changes'\n\n4. **User-perspective review** — Read the key user-facing files:\n   - src/app/page.tsx (home/create room UI)\n   - src/app/room/[roomId]/page.tsx (room UI)\n   - src/app/api/room/route.ts (room API)\n   Focus on: broken user flows, confusing UX, missing error handling visible to users, accessibility gaps, mobile layout issues.\n\n5. **API smoke-test logic review** — Without making live requests, trace these 3 user flows through the code and identify any bugs:\n   a) New user creates a room and votes\n   b) Second user joins an existing room and votes\n   c) Host reveals votes and starts a new round\n\nFinally, output a QA report in this exact format:\n\n## QA Report\n\n### Test Suite\nStatus: PASS | FAIL\n[failing tests if any]\n\n### Build\nStatus: PASS | FAIL\n[errors if any]\n\n### Changed Files\n[list]\n\n### User Flow Issues\n[numbered list of bugs/UX issues found, with file:line references, or 'None found']\n\n### Flow Trace Findings\n[any bugs found in the 3 flows above, or 'All flows look correct']\n\n### Verdict\nREADY FOR USERS | NEEDS FIXES\n[1-2 sentence summary]"
+          }
+        ]
+      }
+    ]
+  }
+}

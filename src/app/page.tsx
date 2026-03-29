@@ -22,6 +22,7 @@ export default function HomePage() {
     setLoading(true);
     try {
       const room = await createRoom({ deck });
+      setLoading(false);
       router.push(`/room/${room.id}`);
     } catch (err) {
       showToast(
@@ -103,6 +104,7 @@ export default function HomePage() {
           {/* SW Mode toggle */}
           <button
             onClick={toggleSwMode}
+            aria-label={isSwMode ? "Switch to Standard Mode" : "Switch to Star Wars Mode"}
             className={[
               "w-full text-xs py-2 rounded-lg border transition-colors",
               isSwMode
