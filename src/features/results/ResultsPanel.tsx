@@ -4,12 +4,16 @@ import React from "react";
 import { RoomState } from "@/shared/types";
 import { calculateStats } from "@/shared/utils/stats";
 import { Badge } from "@/shared/components/Badge";
+import { useStarWars } from "@/features/starwars/StarWarsContext";
+import { getLabels } from "@/features/starwars/swText";
 
 interface ResultsPanelProps {
   room: RoomState;
 }
 
 export function ResultsPanel({ room }: ResultsPanelProps) {
+  const { isSwMode } = useStarWars();
+  const labels = getLabels(isSwMode);
   const stats = calculateStats(room.votes);
 
   if (room.phase !== "revealed") return null;
@@ -20,17 +24,13 @@ export function ResultsPanel({ room }: ResultsPanelProps) {
       {stats.hasInfinity && (
         <div className="flex items-center gap-3 px-4 py-3 bg-purple-900/50 border border-purple-700/50 rounded-xl">
           <span className="text-2xl" aria-hidden="true">∞</span>
-          <p className="text-purple-200 text-sm">
-            Someone voted infinity — this story has transcended the known universe of estimation.
-          </p>
+          <p className="text-purple-200 text-sm">{labels.infinityMessage}</p>
         </div>
       )}
       {stats.hasCoffee && (
         <div className="flex items-center gap-3 px-4 py-3 bg-amber-900/50 border border-amber-700/50 rounded-xl">
           <span className="text-2xl" aria-hidden="true">☕</span>
-          <p className="text-amber-200 text-sm">
-            A break was requested. The code will wait; it has no choice.
-          </p>
+          <p className="text-amber-200 text-sm">{labels.coffeeMessage}</p>
         </div>
       )}
 
@@ -62,13 +62,13 @@ export function ResultsPanel({ room }: ResultsPanelProps) {
             {stats.spread} points
           </span>
           {stats.spread > 8 && (
-            <Badge variant="danger">High variance — needs discussion</Badge>
+            <Badge variant="danger">{labels.highVariance}</Badge>
           )}
           {stats.spread > 3 && stats.spread <= 8 && (
-            <Badge variant="warning">Some variance</Badge>
+            <Badge variant="warning">{labels.someVariance}</Badge>
           )}
           {stats.spread <= 3 && (
-            <Badge variant="success">Good consensus</Badge>
+            <Badge variant="success">{labels.goodConsensus}</Badge>
           )}
         </div>
       )}
@@ -76,7 +76,7 @@ export function ResultsPanel({ room }: ResultsPanelProps) {
       {/* Individual votes */}
       <div>
         <h3 className="text-green-300 text-xs font-semibold uppercase tracking-wider mb-3">
-          Individual Votes
+          {labels.individualVotes}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {Object.entries(room.participants).map(([pid, participant]) => {

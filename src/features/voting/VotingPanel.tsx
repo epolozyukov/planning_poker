@@ -8,6 +8,8 @@ import { Button } from "@/shared/components/Button";
 import { useToast } from "@/shared/components/Toast";
 import { submitVote } from "@/features/room/roomApi";
 import { CUSTOM_CARD_MIN, CUSTOM_CARD_MAX } from "@/shared/config";
+import { useStarWars } from "@/features/starwars/StarWarsContext";
+import { getLabels } from "@/features/starwars/swText";
 
 interface VotingPanelProps {
   room: RoomState;
@@ -17,6 +19,8 @@ interface VotingPanelProps {
 
 export function VotingPanel({ room, participantId, onRoomUpdate }: VotingPanelProps) {
   const { showToast } = useToast();
+  const { isSwMode } = useStarWars();
+  const labels = getLabels(isSwMode);
   const [submitting, setSubmitting] = useState(false);
   const [customValue, setCustomValue] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -80,9 +84,9 @@ export function VotingPanel({ room, participantId, onRoomUpdate }: VotingPanelPr
     <div className="space-y-4">
       {/* Vote progress */}
       <div className="flex items-center justify-between text-sm">
-        <span className="text-green-300 font-medium">Your vote</span>
+        <span className="text-green-300 font-medium">{labels.yourVote}</span>
         <span className="text-green-400">
-          {voteCount}/{totalCount} voted
+          {labels.votesSubmitted(voteCount, totalCount)}
         </span>
       </div>
 
@@ -98,6 +102,7 @@ export function VotingPanel({ room, participantId, onRoomUpdate }: VotingPanelPr
               onClick={() => handleVote(strValue)}
               disabled={isRevealed || submitting}
               size="md"
+              swMode={isSwMode}
             />
           );
         })}

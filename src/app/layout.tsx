@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/shared/components/Toast";
+import { StarWarsProvider } from "@/features/starwars/StarWarsContext";
 
 export const metadata: Metadata = {
   title: "Planning Poker",
@@ -21,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning>
-        <ToastProvider>{children}</ToastProvider>
+        <StarWarsProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </StarWarsProvider>
       </body>
     </html>
   );

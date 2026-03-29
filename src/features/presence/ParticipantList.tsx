@@ -3,6 +3,8 @@
 import React from "react";
 import { RoomState } from "@/shared/types";
 import { HOST_TIMEOUT_MS } from "@/shared/config";
+import { useStarWars } from "@/features/starwars/StarWarsContext";
+import { getLabels } from "@/features/starwars/swText";
 
 interface ParticipantListProps {
   room: RoomState;
@@ -14,6 +16,8 @@ function isActive(lastSeen: string): boolean {
 }
 
 export function ParticipantList({ room, currentParticipantId }: ParticipantListProps) {
+  const { isSwMode } = useStarWars();
+  const labels = getLabels(isSwMode);
   const participants = Object.entries(room.participants);
   const voteCount = Object.values(room.votes).filter((v) => v !== null).length;
 
@@ -21,10 +25,10 @@ export function ParticipantList({ room, currentParticipantId }: ParticipantListP
     <div className="space-y-2">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-green-300 text-xs font-semibold uppercase tracking-wider">
-          Participants
+          {labels.participants}
         </h3>
         <span className="text-green-500 text-xs">
-          {voteCount}/{participants.length} voted
+          {labels.votesSubmitted(voteCount, participants.length)}
         </span>
       </div>
 

@@ -10,6 +10,7 @@ interface PokerCardProps {
   onClick?: () => void;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
+  swMode?: boolean;
 }
 
 const sizeClasses = {
@@ -26,6 +27,7 @@ export function PokerCard({
   onClick,
   disabled = false,
   size = "md",
+  swMode = false,
 }: PokerCardProps) {
   const isSpecial = value === "∞" || value === "☕";
   const isClickable = !!onClick && !disabled;
@@ -71,10 +73,17 @@ export function PokerCard({
             "absolute inset-0 rounded-xl flex flex-col items-center justify-center border-2 transition-all duration-200",
             "backface-hidden",
             selected
-              ? "border-amber-400 bg-amber-50 shadow-card-selected"
+              ? swMode
+                ? "border-yellow-400 bg-yellow-950/80"
+                : "border-amber-400 bg-amber-50 shadow-card-selected"
               : isClickable
-              ? "border-green-600 bg-white shadow-card hover:shadow-card-hover hover:-translate-y-1 hover:border-amber-400"
-              : "border-green-700/50 bg-green-800/30 shadow-card",
+              ? swMode
+                ? "border-indigo-800 bg-slate-900 hover:-translate-y-1 hover:border-yellow-400"
+                : "border-green-600 bg-white shadow-card hover:shadow-card-hover hover:-translate-y-1 hover:border-amber-400"
+              : swMode
+                ? "border-indigo-900/50 bg-slate-900/60"
+                : "border-green-700/50 bg-green-800/30 shadow-card",
+            selected && swMode ? "shadow-[0_0_16px_rgba(255,232,31,0.5)]" : "",
             disabled && !selected ? "opacity-50 cursor-not-allowed" : "",
           ].join(" ")}
           style={{ backfaceVisibility: "hidden" }}
@@ -82,14 +91,16 @@ export function PokerCard({
           <span
             className={[
               "font-bold leading-none",
-              selected ? "text-gray-900" : isClickable ? "text-gray-800" : "text-green-200",
+              swMode
+                ? selected ? "text-yellow-300" : isClickable ? "text-slate-200" : "text-slate-400"
+                : selected ? "text-gray-900" : isClickable ? "text-gray-800" : "text-green-200",
               isSpecial ? "text-2xl" : "",
             ].join(" ")}
           >
             {value}
           </span>
           {selected && (
-            <div className="absolute top-1 right-1 w-2 h-2 bg-amber-400 rounded-full" />
+            <div className={["absolute top-1 right-1 w-2 h-2 rounded-full", swMode ? "bg-yellow-400" : "bg-amber-400"].join(" ")} />
           )}
           {/* Card corner values */}
           {isClickable && (
@@ -97,7 +108,9 @@ export function PokerCard({
               <span
                 className={[
                   "absolute top-1 left-1.5 text-xs font-bold leading-none",
-                  selected ? "text-gray-700" : "text-gray-500",
+                  swMode
+                    ? selected ? "text-yellow-400" : "text-slate-500"
+                    : selected ? "text-gray-700" : "text-gray-500",
                 ].join(" ")}
               >
                 {value}
@@ -105,7 +118,9 @@ export function PokerCard({
               <span
                 className={[
                   "absolute bottom-1 right-1.5 text-xs font-bold leading-none rotate-180",
-                  selected ? "text-gray-700" : "text-gray-500",
+                  swMode
+                    ? selected ? "text-yellow-400" : "text-slate-500"
+                    : selected ? "text-gray-700" : "text-gray-500",
                 ].join(" ")}
               >
                 {value}

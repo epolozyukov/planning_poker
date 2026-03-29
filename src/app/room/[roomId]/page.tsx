@@ -21,6 +21,8 @@ import { joinRoom, updateSettings } from "@/features/room/roomApi";
 import { fetchQuote } from "@/api/quoteClient";
 import { calculateStats } from "@/shared/utils/stats";
 import { MAX_NICKNAME_LENGTH } from "@/shared/config";
+import { useStarWars } from "@/features/starwars/StarWarsContext";
+import { getLabels } from "@/features/starwars/swText";
 
 interface StoredIdentity {
   participantId: string;
@@ -32,6 +34,8 @@ export default function RoomPage() {
   const params = useParams();
   const router = useRouter();
   const { showToast } = useToast();
+  const { isSwMode, toggleSwMode } = useStarWars();
+  const labels = getLabels(isSwMode);
   const roomId = (params.roomId as string).toUpperCase();
 
   // Stored identity (persisted across refreshes, loaded after mount to avoid hydration mismatch)
@@ -248,11 +252,11 @@ export default function RoomPage() {
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-14 h-14 bg-green-800 rounded-2xl shadow-xl mb-3 border border-green-700/60">
-              <span className="text-2xl">♠</span>
+              <span className="text-2xl">{isSwMode ? "⚡" : "♠"}</span>
             </div>
-            <h1 className="text-2xl font-bold text-white">Join Room</h1>
+            <h1 className="text-2xl font-bold text-white">{labels.joinRoom}</h1>
             <p className="text-green-400 text-sm mt-1">
-              Room <span className="font-mono font-bold text-amber-400">{roomId}</span>
+              {isSwMode ? labels.roomId : "Room"} <span className="font-mono font-bold text-amber-400">{roomId}</span>
             </p>
           </div>
 
@@ -262,7 +266,7 @@ export default function RoomPage() {
                 htmlFor="nickname"
                 className="block text-sm font-semibold text-green-300 uppercase tracking-wider"
               >
-                Your Nickname
+                {labels.yourNickname}
               </label>
               <input
                 id="nickname"
@@ -294,7 +298,7 @@ export default function RoomPage() {
               size="lg"
               className="w-full"
             >
-              Join the Table
+              {labels.joinTable}
             </Button>
           </div>
         </div>
@@ -318,8 +322,8 @@ export default function RoomPage() {
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
           {/* Logo */}
           <div className="flex items-center gap-2 mr-2">
-            <span className="text-xl" aria-hidden="true">♠</span>
-            <span className="text-sm font-bold text-white hidden sm:block">Planning Poker</span>
+            <span className="text-xl" aria-hidden="true">{isSwMode ? "⚡" : "♠"}</span>
+            <span className="text-sm font-bold text-white hidden sm:block">{labels.appName}</span>
           </div>
 
           {/* Room code + copy */}
@@ -342,21 +346,36 @@ export default function RoomPage() {
           {/* Round & Phase */}
           <div className="flex items-center gap-2 ml-1">
             <Badge variant={room.phase === "revealed" ? "warning" : "success"}>
-              Round {room.round}
+              {labels.round(room.round)}
             </Badge>
             <Badge variant={room.phase === "revealed" ? "warning" : "info"}>
-              {room.phase === "revealed" ? "Revealed" : "Voting"}
+              {labels.phase(room.phase as "voting" | "revealed")}
             </Badge>
           </div>
 
           <div className="flex-1" />
+
+          {/* SW Mode toggle */}
+          <button
+            onClick={toggleSwMode}
+            className={[
+              "text-xs border rounded-lg px-2.5 py-1 transition-colors hidden sm:block",
+              isSwMode
+                ? "text-yellow-400 border-yellow-700/60 hover:border-yellow-500"
+                : "text-green-500 hover:text-green-300 border-green-800 hover:border-green-600",
+            ].join(" ")}
+            title={labels.swToggleLabel}
+            aria-label={labels.swToggleLabel}
+          >
+            {isSwMode ? "🌌" : "⚡"} {labels.swToggleLabel}
+          </button>
 
           {/* New Room button */}
           <a
             href="/"
             className="text-xs text-green-500 hover:text-green-300 border border-green-800 hover:border-green-600 rounded-lg px-2.5 py-1 transition-colors hidden sm:block"
           >
-            New Room
+            {labels.newRoom}
           </a>
 
           {/* Participants count */}
@@ -370,7 +389,7 @@ export default function RoomPage() {
           {/* AI Quotes toggle — always visible for host */}
           {isHost && (
             <div className="flex items-center gap-2 border-l border-green-800/60 pl-3 ml-1">
-              <span className="text-xs text-green-400 hidden sm:block">AI Quotes</span>
+              <span className="text-xs text-green-400 hidden sm:block">{labels.aiQuotes}</span>
               <button
                 onClick={handleToggleQuotes}
                 role="switch"
@@ -402,14 +421,14 @@ export default function RoomPage() {
         {isHost && (
           <div className="border-t border-green-800/40 bg-green-950/80 px-4 py-2">
             <div className="max-w-7xl mx-auto flex items-center gap-3">
-              <span className="text-xs text-green-500 flex-shrink-0">Estimating:</span>
+              <span className="text-xs text-green-500 flex-shrink-0">{labels.estimatingPrefix}</span>
               <input
                 type="text"
                 value={storyLabel}
                 onChange={(e) => setStoryLabel(e.target.value.slice(0, 200))}
                 onBlur={handleSaveStoryLabel}
                 onKeyDown={(e) => { if (e.key === "Enter") handleSaveStoryLabel(); }}
-                placeholder="Story / ticket title (optional)"
+                placeholder={labels.storyPlaceholder}
                 className="flex-1 bg-transparent text-sm text-green-200 placeholder-green-700 border-none outline-none focus:text-white"
               />
             </div>
@@ -420,7 +439,7 @@ export default function RoomPage() {
         {!isHost && room.storyLabel && (
           <div className="border-t border-green-800/40 bg-green-900/40 px-4 py-2">
             <div className="max-w-7xl mx-auto flex items-center gap-2">
-              <span className="text-green-500 text-xs">Estimating:</span>
+              <span className="text-green-500 text-xs">{labels.estimatingPrefix}</span>
               <span className="text-green-200 text-sm font-medium">{room.storyLabel}</span>
             </div>
           </div>
@@ -435,7 +454,7 @@ export default function RoomPage() {
             <section className="card-felt p-6">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-green-300 text-xs font-semibold uppercase tracking-wider">
-                  {room.phase === "revealed" ? "Votes" : "Choose Your Card"}
+                  {room.phase === "revealed" ? labels.individualVotes : labels.chooseCard}
                 </h2>
                 <div className="flex items-center gap-2 text-xs text-green-500">
                   <span className="capitalize">{room.deck}</span>
@@ -485,8 +504,8 @@ export default function RoomPage() {
               <section className="card-felt p-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs text-green-400">
-                    <span>Votes submitted</span>
-                    <span>{voteCount}/{participantCount}</span>
+                    <span>{labels.participants}</span>
+                    <span>{labels.votesSubmitted(voteCount, participantCount)}</span>
                   </div>
                   <div className="w-full bg-green-900 rounded-full h-2">
                     <div
@@ -503,17 +522,17 @@ export default function RoomPage() {
             )}
 
             <section className="card-felt p-4 space-y-3">
-              <h3 className="text-green-300 text-xs font-semibold uppercase tracking-wider">Room Info</h3>
+              <h3 className="text-green-300 text-xs font-semibold uppercase tracking-wider">{labels.roomInfo}</h3>
               <div className="space-y-2 text-sm">
-                <InfoRow label="Room ID" value={<span className="font-mono text-amber-400">{roomId}</span>} />
-                <InfoRow label="Deck" value={<span className="capitalize">{room.deck}</span>} />
-                <InfoRow label="Round" value={String(room.round)} />
+                <InfoRow label={labels.roomId} value={<span className="font-mono text-amber-400">{roomId}</span>} />
+                <InfoRow label={labels.deck} value={<span className="capitalize">{room.deck}</span>} />
+                <InfoRow label={labels.roundLabel} value={String(room.round)} />
               </div>
               <Button variant="ghost" size="sm" onClick={copyRoomLink} className="w-full">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                Copy Invite Link
+                {labels.copyInviteLink}
               </Button>
             </section>
           </aside>

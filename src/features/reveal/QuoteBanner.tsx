@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { QUOTE_AUTO_DISMISS_MS } from "@/shared/config";
+import { useStarWars } from "@/features/starwars/StarWarsContext";
 
 interface QuoteBannerProps {
   quote: string;
@@ -10,6 +11,7 @@ interface QuoteBannerProps {
 
 export function QuoteBanner({ quote, onDismiss }: QuoteBannerProps) {
   const [visible, setVisible] = useState(true);
+  const { isSwMode } = useStarWars();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -29,12 +31,12 @@ export function QuoteBanner({ quote, onDismiss }: QuoteBannerProps) {
       role="status"
       aria-live="polite"
     >
-      <div className="bg-amber-900/95 border-b border-amber-700/60 backdrop-blur-sm shadow-xl">
+      <div className={isSwMode ? "sw-quote-banner border-b backdrop-blur-sm shadow-xl" : "bg-amber-900/95 border-b border-amber-700/60 backdrop-blur-sm shadow-xl"}>
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-start gap-3">
-          <span className="text-amber-400 text-lg flex-shrink-0 mt-0.5" aria-hidden="true">
-            ✦
+          <span className={["text-lg flex-shrink-0 mt-0.5", isSwMode ? "sw-quote-icon" : "text-amber-400"].join(" ")} aria-hidden="true">
+            {isSwMode ? "⚡" : "✦"}
           </span>
-          <p className="text-amber-100 text-sm font-medium leading-relaxed flex-1">
+          <p className={["text-sm font-medium leading-relaxed flex-1", isSwMode ? "sw-quote-text" : "text-amber-100"].join(" ")}>
             {quote}
           </p>
           <div className="flex items-center gap-3 flex-shrink-0">

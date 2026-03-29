@@ -5,6 +5,8 @@ import { RoomState } from "@/shared/types";
 import { Button } from "@/shared/components/Button";
 import { useToast } from "@/shared/components/Toast";
 import { revealVotes, startNewRound } from "@/features/room/roomApi";
+import { useStarWars } from "@/features/starwars/StarWarsContext";
+import { getLabels } from "@/features/starwars/swText";
 
 interface RevealPanelProps {
   room: RoomState;
@@ -20,6 +22,8 @@ export function RevealPanel({
   onRoomUpdate,
 }: RevealPanelProps) {
   const { showToast } = useToast();
+  const { isSwMode } = useStarWars();
+  const labels = getLabels(isSwMode);
   const [loading, setLoading] = useState(false);
 
   const voteCount = Object.values(room.votes).filter((v) => v !== null).length;
@@ -56,17 +60,14 @@ export function RevealPanel({
     if (isRevealed) {
       return (
         <div className="text-center py-3">
-          <p className="text-green-400 text-sm">Waiting for host to start a new round...</p>
+          <p className="text-green-400 text-sm">{labels.waitingNewRound}</p>
         </div>
       );
     }
     return (
       <div className="text-center py-3">
         <p className="text-green-400 text-sm">
-          Waiting for host to reveal votes...{" "}
-          <span className="text-green-500">
-            {voteCount}/{Object.keys(room.participants).length} voted
-          </span>
+          {labels.waitingReveal(voteCount, Object.keys(room.participants).length)}
         </p>
       </div>
     );
@@ -87,7 +88,7 @@ export function RevealPanel({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
-          Reveal Cards
+          {labels.revealCards}
           {voteCount > 0 && (
             <span className="ml-1 px-1.5 py-0.5 bg-amber-700/50 rounded text-xs">
               {voteCount}/{Object.keys(room.participants).length}
@@ -105,7 +106,7 @@ export function RevealPanel({
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          New Round
+          {labels.newRound}
         </Button>
       )}
     </div>

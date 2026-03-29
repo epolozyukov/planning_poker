@@ -6,10 +6,14 @@ import { Button } from "@/shared/components/Button";
 import { useToast } from "@/shared/components/Toast";
 import { createRoom } from "@/features/room/roomApi";
 import { DeckType } from "@/shared/utils/deck";
+import { useStarWars } from "@/features/starwars/StarWarsContext";
+import { getLabels } from "@/features/starwars/swText";
 
 export default function HomePage() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { isSwMode, toggleSwMode } = useStarWars();
+  const labels = getLabels(isSwMode);
   const [deck, setDeck] = useState<DeckType>("fibonacci");
   const [loading, setLoading] = useState(false);
 
@@ -39,13 +43,13 @@ export default function HomePage() {
         {/* Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-800 rounded-2xl shadow-xl mb-2 border border-green-700/60">
-            <span className="text-3xl" aria-hidden="true">♠</span>
+            <span className="text-3xl" aria-hidden="true">{isSwMode ? "⚡" : "♠"}</span>
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight">
-            Planning Poker
+            {labels.appName}
           </h1>
           <p className="text-green-400 text-lg">
-            Estimate smarter, together.
+            {isSwMode ? "May the estimates be with you." : "Estimate smarter, together."}
           </p>
         </div>
 
@@ -89,8 +93,21 @@ export default function HomePage() {
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Create Room
+            {labels.createRoom}
           </Button>
+
+          {/* SW Mode toggle */}
+          <button
+            onClick={toggleSwMode}
+            className={[
+              "w-full text-xs py-2 rounded-lg border transition-colors",
+              isSwMode
+                ? "text-yellow-400 border-yellow-700/60 hover:border-yellow-500 bg-yellow-950/20"
+                : "text-green-500 border-green-800 hover:border-green-600 hover:text-green-300",
+            ].join(" ")}
+          >
+            {isSwMode ? "🌌" : "⚡"} {labels.swToggleLabel}
+          </button>
         </div>
 
         {/* Features */}
