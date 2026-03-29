@@ -23,6 +23,7 @@ import { calculateStats } from "@/shared/utils/stats";
 import { MAX_NICKNAME_LENGTH } from "@/shared/config";
 import { useStarWars } from "@/features/starwars/StarWarsContext";
 import { getLabels } from "@/features/starwars/swText";
+import { MillenniumFalcon } from "@/features/starwars/MillenniumFalcon";
 
 interface StoredIdentity {
   participantId: string;
@@ -314,6 +315,9 @@ export default function RoomPage() {
 
   return (
     <div className="min-h-screen bg-green-950 felt-texture">
+      {/* Millennium Falcon fly-across in SW mode */}
+      {isSwMode && <MillenniumFalcon />}
+
       {/* AI Quote banner — fixed top, above header */}
       {quote && <QuoteBanner quote={quote} onDismiss={dismissQuote} />}
 

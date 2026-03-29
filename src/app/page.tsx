@@ -8,6 +8,7 @@ import { createRoom } from "@/features/room/roomApi";
 import { DeckType } from "@/shared/utils/deck";
 import { useStarWars } from "@/features/starwars/StarWarsContext";
 import { getLabels } from "@/features/starwars/swText";
+import { MillenniumFalcon } from "@/features/starwars/MillenniumFalcon";
 
 export default function HomePage() {
   const router = useRouter();
@@ -33,6 +34,9 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-green-950 felt-texture flex flex-col items-center justify-center p-4">
+      {/* Millennium Falcon fly-across in SW mode */}
+      {isSwMode && <MillenniumFalcon />}
+
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-green-800/20 rounded-full blur-3xl" />

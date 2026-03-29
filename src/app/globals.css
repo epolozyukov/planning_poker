@@ -184,6 +184,24 @@ html.sw-mode .sw-quote-banner {
 html.sw-mode .sw-quote-icon { color: #4499ff; }
 html.sw-mode .sw-quote-text { color: #c8dcff; }
 
+/* Millennium Falcon fly-across animation */
+@keyframes falcon-fly {
+  0%   { left: -120px; top: 72px; opacity: 0;   transform: rotate(-4deg); }
+  6%   { opacity: 1; }
+  94%  { opacity: 1; }
+  100% { left: calc(100vw + 120px); top: 44px; opacity: 0; transform: rotate(3deg); }
+}
+
+.sw-falcon-fly {
+  position: fixed;
+  z-index: 45;
+  pointer-events: none;
+  animation: falcon-fly 10s linear infinite;
+  animation-delay: 4s;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.7));
+}
+
 /* Card felt table texture */
 .felt-texture {
   background-image:
