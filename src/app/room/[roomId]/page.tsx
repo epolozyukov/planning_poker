@@ -359,15 +359,16 @@ export default function RoomPage() {
           <button
             onClick={toggleSwMode}
             className={[
-              "text-xs border rounded-lg px-2.5 py-1 transition-colors hidden sm:block",
+              "text-xs border rounded-lg px-2 py-1 transition-colors flex items-center gap-1",
               isSwMode
-                ? "text-yellow-400 border-yellow-700/60 hover:border-yellow-500"
-                : "text-green-500 hover:text-green-300 border-green-800 hover:border-green-600",
+                ? "text-yellow-400 border-yellow-600/70 bg-yellow-950/30 hover:border-yellow-400"
+                : "text-green-400 border-green-700 hover:text-amber-300 hover:border-amber-600",
             ].join(" ")}
             title={labels.swToggleLabel}
             aria-label={labels.swToggleLabel}
           >
-            {isSwMode ? "🌌" : "⚡"} {labels.swToggleLabel}
+            <span>{isSwMode ? "🌌" : "⚡"}</span>
+            <span className="hidden sm:inline">{labels.swToggleLabel}</span>
           </button>
 
           {/* New Room button */}
