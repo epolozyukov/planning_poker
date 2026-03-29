@@ -23,7 +23,6 @@ import { calculateStats } from "@/shared/utils/stats";
 import { MAX_NICKNAME_LENGTH } from "@/shared/config";
 import { useStarWars } from "@/features/starwars/StarWarsContext";
 import { getLabels } from "@/features/starwars/swText";
-import { MillenniumFalcon } from "@/features/starwars/MillenniumFalcon";
 import { SwBackground } from "@/features/starwars/SwBackground";
 
 interface StoredIdentity {
@@ -316,8 +315,7 @@ export default function RoomPage() {
 
   return (
     <div className="min-h-screen bg-green-950 felt-texture">
-      {/* Millennium Falcon fly-across + Chewie & Han Solo in SW mode */}
-      {isSwMode && <MillenniumFalcon />}
+      {/* Chewbacca + Millennium Falcon background in SW mode */}
       {isSwMode && <SwBackground />}
 
       {/* AI Quote banner — fixed top, above header */}

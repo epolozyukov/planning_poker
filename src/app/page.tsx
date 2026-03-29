@@ -8,7 +8,6 @@ import { createRoom } from "@/features/room/roomApi";
 import { DeckType } from "@/shared/utils/deck";
 import { useStarWars } from "@/features/starwars/StarWarsContext";
 import { getLabels } from "@/features/starwars/swText";
-import { MillenniumFalcon } from "@/features/starwars/MillenniumFalcon";
 import { SwBackground } from "@/features/starwars/SwBackground";
 
 export default function HomePage() {
@@ -35,8 +34,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-green-950 felt-texture flex flex-col items-center justify-center p-4">
-      {/* Millennium Falcon fly-across + Chewie & Han Solo in SW mode */}
-      {isSwMode && <MillenniumFalcon />}
+      {/* Chewbacca + Millennium Falcon background in SW mode */}
       {isSwMode && <SwBackground />}
 
       {/* Background decoration */}
