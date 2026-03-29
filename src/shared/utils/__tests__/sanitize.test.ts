@@ -6,9 +6,9 @@ describe("sanitizeNickname", () => {
     expect(sanitizeNickname("  alice  ")).toBe("alice");
   });
 
-  it("strips XSS characters", () => {
-    // strips <>"'`& then truncates to max length (20)
-    expect(sanitizeNickname('<script>alert("xss")</script>')).toBe("scriptalert(xss)/scr");
+  it("strips XSS and special characters", () => {
+    // allowlist: letters, numbers, space, hyphen, underscore, period
+    expect(sanitizeNickname('<script>alert("xss")</script>')).toBe("scriptalertxssscript");
   });
 
   it("truncates to max length", () => {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { RoomState } from "@/shared/types";
+import { getDeck } from "@/shared/utils/deck";
 import {
   getRoom,
   setRoom,
@@ -174,7 +175,17 @@ async function handlePUT(req: NextRequest) {
         return jsonError("Voting is closed", 400);
       }
 
-      const vote = body.vote === null || body.vote === undefined ? null : String(body.vote).slice(0, 10);
+      let vote: string | null;
+      if (body.vote === null || body.vote === undefined) {
+        vote = null;
+      } else {
+        const rawVote = String(body.vote);
+        const validCards = getDeck(room.deck).map(String);
+        if (!validCards.includes(rawVote)) {
+          return jsonError("Invalid vote value", 400);
+        }
+        vote = rawVote;
+      }
       room.votes[participantId] = vote;
       room.participants[participantId].lastSeen = now;
 

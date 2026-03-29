@@ -3,7 +3,7 @@ import { MAX_NICKNAME_LENGTH, MIN_NICKNAME_LENGTH } from "@/shared/config";
 export function sanitizeNickname(input: string): string {
   return input
     .trim()
-    .replace(/[<>&"'`]/g, "")
+    .replace(/[^\p{L}\p{N} \-_.]/gu, "")
     .slice(0, MAX_NICKNAME_LENGTH);
 }
 

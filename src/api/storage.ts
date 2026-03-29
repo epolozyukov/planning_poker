@@ -96,6 +96,23 @@ async function kvIncr(key: string): Promise<number> {
   return memIncr(key);
 }
 
+async function kvExpire(key: string, ttl: number): Promise<void> {
+  if (useVercelKV()) {
+    const { kv } = await import("@vercel/kv");
+    await kv.expire(key, ttl);
+    return;
+  }
+  const redis = await getIORedis();
+  if (redis) {
+    await redis.expire(key, ttl);
+    return;
+  }
+  const entry = memoryStore.get(key);
+  if (entry) {
+    entry.expiresAt = Date.now() + ttl * 1000;
+  }
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function getRoom(roomId: string): Promise<RoomState | null> {
@@ -121,7 +138,7 @@ export async function getRateLimitCount(key: string): Promise<number> {
 export async function incrementRateLimit(key: string): Promise<number> {
   const count = await kvIncr(`ratelimit:${key}`);
   if (count === 1) {
-    await kvSet(`ratelimit:${key}`, "1", 3600);
+    await kvExpire(`ratelimit:${key}`, 3600);
   }
   return count;
 }
