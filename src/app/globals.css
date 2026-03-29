@@ -149,26 +149,29 @@ html.sw-mode .felt-texture {
     radial-gradient(1px 1px at 35% 75%,  rgba(255,255,255,0.55), transparent);
 }
 
-/* Chewbacca & Han Solo fixed background decorations */
-.sw-char-chewie,
-.sw-char-han {
+/* Chewbacca fixed background decoration */
+.sw-char-chewie {
   position: fixed;
   bottom: 0;
+  left: 0;
   z-index: 2;
   pointer-events: none;
-  opacity: 0.42;
-  filter: drop-shadow(0 0 18px rgba(255, 180, 80, 0.25));
+  opacity: 0.55;
+  border-radius: 0 1rem 0 0;
+  overflow: hidden;
+  mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 60%, transparent 100%),
+              linear-gradient(to right, rgba(0,0,0,0.9) 0%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 60%, transparent 100%),
+                      linear-gradient(to right, rgba(0,0,0,0.9) 0%, transparent 100%);
+  -webkit-mask-composite: source-in;
 }
-.sw-char-chewie { left: 0; transform-origin: bottom left; }
-.sw-char-han    { right: 0; transform-origin: bottom right; }
 
 @media (max-width: 900px) {
-  .sw-char-chewie { opacity: 0.22; transform: scale(0.75); }
-  .sw-char-han    { opacity: 0.22; transform: scale(0.75); }
+  .sw-char-chewie { opacity: 0.30; width: 200px !important; }
 }
 @media (max-width: 600px) {
-  .sw-char-chewie { opacity: 0.12; transform: scale(0.55); }
-  .sw-char-han    { opacity: 0.12; transform: scale(0.55); }
+  .sw-char-chewie { opacity: 0.18; width: 140px !important; }
 }
 
 html.sw-mode .card-felt {
@@ -240,7 +243,9 @@ html.sw-mode .sw-quote-text { color: #c8dcff; }
   animation: falcon-fly 10s linear infinite;
   animation-delay: 4s;
   opacity: 0;
-  filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.7));
+  border-radius: 0.5rem;
+  overflow: hidden;
+  filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.6));
 }
 
 /* Card felt table texture */
